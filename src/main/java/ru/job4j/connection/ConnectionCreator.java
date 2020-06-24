@@ -1,4 +1,4 @@
-package ru.job4j.parser;
+package ru.job4j.connection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,12 +8,14 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
 
+/**
+ * The class is responsible for creating a connection to the database
+ */
 public class ConnectionCreator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionCreator.class);
-    private Properties config = new Properties();
 
     /**
-     * Метод загружает пропертис и устанавливает соединение с БД, возвращает объект connection
+     * Сreates a connection to the database
      */
     public Connection init() {
         try (InputStream in = ConnectionCreator.class.getClassLoader().getResourceAsStream("app.properties")) {
@@ -24,19 +26,10 @@ public class ConnectionCreator {
                     config.getProperty("url"),
                     config.getProperty("username"),
                     config.getProperty("password"));
-            LOGGER.info("Установлено соединение соединение");
+            LOGGER.info("Сonnection is established");
             return connection;
-
         } catch (Exception e) {
-            e.printStackTrace();
             throw new IllegalStateException(e);
         }
-    }
-
-    /**
-     * Метод возвращает проперти по ключу
-     */
-    public String get(String key) {
-        return this.config.getProperty(key);
     }
 }
