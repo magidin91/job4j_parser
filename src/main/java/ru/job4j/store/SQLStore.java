@@ -42,11 +42,14 @@ public class SQLStore implements Store, AutoCloseable {
      */
     public List<Post> getAll() {
         List<Post> vacancies = new ArrayList<>();
-        try (Statement st = connection.createStatement()) {
-            try (ResultSet rs = st.executeQuery("select* from posts")) {
+        try (PreparedStatement st = connection.prepareStatement("select* from posts")) {
+            try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    Post post = new Post(rs.getString("name"), rs.getString("text"),
-                            rs.getString("link"), rs.getTimestamp("created"));
+                    Post post = new Post(
+                            rs.getString("name"),
+                            rs.getString("text"),
+                            rs.getString("link"),
+                            rs.getTimestamp("created"));
                     vacancies.add(post);
                     LOGGER.info("The data was obtained from a database");
                 }
@@ -69,9 +72,10 @@ public class SQLStore implements Store, AutoCloseable {
      * Creates a table "posts" if it hasn't been created yet
      */
     private void createTable() {
-        try (Statement st = connection.createStatement()) {
-            st.execute("CREATE TABLE IF NOT EXISTS posts (id serial primary key, name varchar(2000), "
-                    + "text text, link varchar(2000), created timestamp(0), UNIQUE(link))");
+        try (PreparedStatement st = connection.prepareStatement(
+                "CREATE TABLE IF NOT EXISTS posts (id serial primary key, " +
+                        "name varchar(2000), text text, link varchar(2000), created timestamp(0), UNIQUE(link))")) {
+            st.executeUpdate();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
         }
